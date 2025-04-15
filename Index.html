@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Household Survey Form</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Suppress favicon.ico -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border-radius: 5px;
+    }
+    h2, h3 {
+      color: #34495e;
+      margin-top: 20px;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: calc(100% - 20px);
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .entry {
+      border: 1px solid #e0e0e0;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    .conditional-fields {
+      margin-left: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+    }
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+    #hidden-form { display: none; }
+    @media (max-width: 600px) {
+      input, select, textarea { width: 100%; }
+      h1 { font-size: 1.5em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Comprehensive Mobility Plan Survey - Visakhapatnam</h1>
+  <form id="survey-form">
+    <h2>Household Information</h2>
+    <label>Surveyor Name: <input type="text" name="surveyor_name" required></label>
+    <label>Household ID: <input type="text" name="household_id" id="household_id" readonly></label>
+    <label>Submission Date: <input type="date" name="submission_date" id="submission_date" required></label>
+    <label>Ward No.: <input type="text" name="ward_no" required></label>
+    <label>TAZ No.: <input type="text" name="taz_no" required></label>
+    <label>Head of Household: <input type="text" name="head_name" required></label>
+    <label>Address: <input type="text" id="address" name="address" required>
+      <button type="button" onclick="getLocation()">Get Location</button></label>
+    <label>Latitude: <input type="text" id="latitude" name="latitude" readonly></label>
+    <label>Longitude: <input type="text" id="longitude" name="longitude" readonly></label>
+    <label>Mobile No.: <input type="tel" name="mobile"></label>
+    <label>Household Type:
+      <select name="household_type" required>
+        <option value="" selected>Please Select</option>
+        <option>Apartment</option>
+        <option>Independent House</option>
+        <option>Service/Shared</option>
+        <option>Informal Housing</option>
+      </select>
+    </label>
+    <label>Ownership:
+      <select name="house_ownership" required>
+        <option value="" selected>Please Select</option>
+        <option>Owned</option>
+        <option>Rented</option>
+        <option>Employer Provided</option>
+      </select>
+    </label>
+    <label>No. of Rooms:
+      <select name="num_rooms" required>
+        <option value="" selected>Please Select</option>
+        <option>1 Room</option>
+        <option>1RK</option>
+        <option>1BHK</option>
+        <option>2BHK</option>
+        <option>3BHK</option>
+        <option>4BHK</option>
+        <option>5BHK</option>
+        <option>>5BHK</option>
+      </select>
+    </label>
+    <label>No. of Earners: <input type="number" name="num_earners" min="0" required></label>
+    <label>Monthly Income (Rs.):
+      <select name="income" required>
+        <option value="" selected>Please Select</option>
+        <option value="0-10000">0 - 10,000</option>
+        <option value="10001-20000">10,001 - 20,000</option>
+        <option value="20001-30000">20,001 - 30,000</option>
+        <option value="30001-50000">30,001 - 50,000</option>
+        <option value="50001-75000">50,001 - 75,000</option>
+        <option value="75001-100000">75,001 - 1,00,000</option>
+        <option value="100001-200000">1,00,001 - 2,00,000</option>
+        <option value=">200000">Above 2,00,000</option>
+      </select>
+    </label>
+
+    <h2>Vehicles Owned</h2>
+    <div id="vehicles"></div>
+    <button type="button" onclick="addVehicle()">+ Add Vehicle</button>
+
+    <h2>Monthly Expenditure (Rs.)</h2>
+    <label>Transport: <input type="number" name="exp_transport" min="0"></label>
+    <label>Housing: <input type="number" name="exp_housing" min="0"></label>
+    <label>Education: <input type="number" name="exp_education" min="0"></label>
+    <label>Food: <input type="number" name="exp_food" min="0"></label>
+    <label>Health: <input type="number" name="exp_health" min="0"></label>
+    <label>Others: <input type="number" name="exp_others" min="0"></label>
+
+    <h2>Public Transport</h2>
+    <label>Nearest Public Transport:
+      <select name="nearest_pt_station" required>
+        <option value="" selected>Please Select</option>
+        <option>Bus Station</option>
+        <option>Railway Station</option>
+        <option>IPT Stand</option>
+      </select>
+    </label>
+    <label>Distance to PT (km): <input type="number" step="0.01" name="pt_distance" min="0"></label>
+    <label>Walk Time (min): <input type="number" name="walk_time" min="0"></label>
+    <label>Waiting Time (min): <input type="number" name="waiting_time" min="0"></label>
+    <label>Weekly Usage: <input type="text" name="weekly_usage"></label>
+    <label>Feedback:
+      <select name="pt_feedback" required>
+        <option value="" selected>Please Select</option>
+        <option>Reliable</option>
+        <option>Safe</option>
+        <option>Expensive</option>
+      </select>
+    </label>
+    <label>Suggestions: <textarea name="pt_suggestions"></textarea></label>
+
+    <h2>Personal Information</h2>
+    <div id="members"></div>
+    <button type="button" onclick="addMember()">+ Add Member</button>
+
+    <h2>Submission</h2>
+    <button type="submit">Submit Survey</button>
+    <button type="button" onclick="retryFailedSubmissions()">Retry Failed Submissions</button>
+    <label>Export From: <input type="date" id="from_date"></label>
+    <label>To: <input type="date" id="to_date"></label>
+    <button type="button" id="download-btn" onclick="downloadExcel()" disabled>Download & Share</button>
+  </form>
+  <form id="hidden-form" action="https://script.google.com/macros/s/AKfycbxYnoE6O2jpJh2wdXVuU562ioKe_y3Z2xobbXFarX6zUvBFFae_x9oDh0eToJOH63ke/exec" method="POST" target="hidden-iframe">
+    <input type="hidden" name="data" id="hidden-data">
+  </form>
+  <iframe name="hidden-iframe" style="display: none;" onload="handleIframeLoad()"></iframe>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    const householdId = `H${Date.now()}`;
+    document.getElementById('household_id').value = householdId;
+    document.getElementById('submission_date').value = new Date().toISOString().split('T')[0];
+    let memberIdCounter = 0, tripIdCounter = 0, transferIdCounter = 0;
+    let lastSubmissionStatus = null;
+
+    if (!localStorage.getItem('surveyData')) localStorage.setItem('surveyData', JSON.stringify([]));
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          document.getElementById('latitude').value = pos.coords.latitude;
+          document.getElementById('longitude').value = pos.coords.longitude;
+        }, err => alert('Error getting location: ' + err.message));
+      } else {
+        alert('Geolocation is not supported by this browser.');
+      }
+    }
+
+    function addVehicle() {
+      const vehiclesDiv = document.getElementById('vehicles');
+      const vehicleDiv = document.createElement('div');
+      vehicleDiv.className = 'entry';
+      vehicleDiv.innerHTML = `
+        <label>Vehicle Number: <input type="text" name="vehicle_number[]"></label>
+        <label>Vehicle Type:
+          <select name="veh_type[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Car</option>
+            <option>Two-Wheeler</option>
+            <option>Bicycle</option>
+            <option>Auto-Rickshaw</option>
+            <option>None</option>
+          </select>
+        </label>
+        <label>Ownership:
+          <select name="ownership_type[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Owned</option>
+            <option>Hired</option>
+          </select>
+        </label>
+        <label>Fuel Type:
+          <select name="fuel_type[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Petrol</option>
+            <option>Diesel</option>
+            <option>Electric</option>
+            <option>CNG</option>
+            <option>None</option>
+          </select>
+        </label>
+        <label>Parking:
+          <select name="parking_type[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Private Space</option>
+            <option>On Street</option>
+          </select>
+        </label>
+        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+      `;
+      vehiclesDiv.appendChild(vehicleDiv);
+    }
+
+    function addMember() {
+      const membersDiv = document.getElementById('members');
+      const memberId = `M${++memberIdCounter}`;
+      const memberDiv = document.createElement('div');
+      memberDiv.className = 'entry';
+      memberDiv.dataset.memberId = memberId;
+      memberDiv.innerHTML = `
+        <label>Member ID: <input type="text" name="member_id[]" readonly value="${memberId}"></label>
+        <label>Relation:
+          <select name="relation[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Self</option>
+            <option>Spouse</option>
+            <option>Child</option>
+            <option>Parent</option>
+            <option>Sibling</option>
+            <option>Grandparent</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Age: <input type="number" name="age[]" min="0"></label>
+        <label>Gender:
+          <select name="gender[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Marital Status:
+          <select name="marital_status[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Married</option>
+            <option>Unmarried</option>
+          </select>
+        </label>
+        <label>Education:
+          <select name="education[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Illiterate</option>
+            <option>Pre-Primary</option>
+            <option>Primary</option>
+            <option>Secondary</option>
+            <option>Higher Secondary</option>
+            <option>Diploma</option>
+            <option>Graduate</option>
+            <option>Post Graduate</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Occupation:
+          <select name="occupation[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Full-Time</option>
+            <option>Part-Time</option>
+            <option>Business</option>
+            <option>Employer Business</option>
+            <option>Daily Wages</option>
+            <option>Student</option>
+            <option>Homemaker</option>
+            <option>Retired</option>
+            <option>Unemployed</option>
+            <option>Caretaker</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Workplace:
+          <select name="employment_place[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Residential</option>
+            <option>Industry</option>
+            <option>Warehouse</option>
+            <option>Office</option>
+            <option>Media</option>
+            <option>Retail</option>
+            <option>Restaurant</option>
+            <option>Hotel</option>
+            <option>Tourism</option>
+            <option>Education</option>
+            <option>Health</option>
+            <option>Agriculture</option>
+            <option>Construction</option>
+            <option>Varies</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Income (Rs.):
+          <select name="income_personal[]" required>
+            <option value="" selected>Please Select</option>
+            <option>0</option>
+            <option>1-2500</option>
+            <option>2501-5000</option>
+            <option>5001-7500</option>
+            <option>7501-10000</option>
+            <option>10001-15000</option>
+            <option>15001-20000</option>
+            <option>20001-25000</option>
+            <option>25001-30000</option>
+            <option>30001-40000</option>
+            <option>40001-50000</option>
+            <option>>50000</option>
+          </select>
+        </label>
+        <label>License:
+          <select name="license[]" required>
+            <option value="" selected>Please Select</option>
+            <option>None</option>
+            <option>Two-Wheeler</option>
+            <option>Car</option>
+            <option>Both</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Travel Pass:
+          <select name="travel_pass[]" required>
+            <option value="" selected>Please Select</option>
+            <option>None</option>
+            <option>Rail</option>
+            <option>Bus</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Pass Cost (Rs.): <input type="number" name="pass_cost[]" min="0"></label>
+        <label>Travel Expense (Rs.): <input type="number" name="travel_expense[]" min="0"></label>
+        <label>Has Trips?:
+          <select name="has_trips[]" onchange="toggleTrips(this)" required>
+            <option value="" selected>Please Select</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+        <div class="trip-section" style="display: none;">
+          <h3>Trip Information</h3>
+          <div class="trip-entries"></div>
+          <button type="button" onclick="addTrip(this)">+ Add Trip</button>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+      `;
+      membersDiv.appendChild(memberDiv);
+    }
+
+    function toggleTrips(select) {
+      const tripSection = select.parentElement.nextElementSibling;
+      tripSection.style.display = select.value === 'yes' ? 'block' : 'none';
+    }
+
+    function addTrip(button) {
+      const tripSection = button.parentElement.querySelector('.trip-entries');
+      const memberId = button.closest('.entry').dataset.memberId;
+      const tripId = `T${++tripIdCounter}`;
+      const tripDiv = document.createElement('div');
+      tripDiv.className = 'entry';
+      tripDiv.innerHTML = `
+        <label>Trip ID: <input type="text" name="trip_id[]" readonly value="${tripId}"></label>
+        <label>Mode:
+          <select name="mode_of_transport[]" onchange="toggleTransferFields(this)" required>
+            <option value="" selected>Please Select</option>
+            <option>Walk</option>
+            <option>Bicycle</option>
+            <option>Auto Rickshaw</option>
+            <option>Two-Wheeler</option>
+            <option>Car</option>
+            <option>Taxi</option>
+            <option>Bus</option>
+            <option>Train</option>
+            <option>Metro</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>Origin: <input type="text" name="origin_name[]"></label>
+        <label>Destination: <input type="text" name="destination_name[]"></label>
+        <label>Start Time: <input type="time" name="start_time[]"></label>
+        <label>End Time: <input type="time" name="end_time[]"></label>
+        <label>Travel Cost (Rs.): <input type="number" name="travel_cost[]" min="0"></label>
+        <label>Travel Time (min): <input type="number" name="travel_time[]" min="0" required></label>
+        <label>Purpose:
+          <select name="trip_purpose[]" required>
+            <option value="" selected>Please Select</option>
+            <option>Work</option>
+            <option>Education</option>
+            <option>Shopping</option>
+            <option>Recreation</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>No. of Transfers: <input type="number" name="num_transfers[]" min="0" onchange="updateTransfers(this)"></label>
+        <div class="transfer-entries"></div>
+        <button type="button" onclick="this.parentElement.remove()">Remove</button>
+      `;
+      tripSection.appendChild(tripDiv);
+    }
+
+    function toggleTransferFields(select) {
+      const tripDiv = select.closest('.entry');
+      const numTransfersInput = tripDiv.querySelector('input[name="num_transfers[]"]');
+      const transferEntries = tripDiv.querySelector('.transfer-entries');
+      if (['Bus', 'Train', 'Metro'].includes(select.value)) {
+        numTransfersInput.value = numTransfersInput.value || '0';
+        updateTransfers(numTransfersInput);
+      } else {
+        numTransfersInput.value = '0';
+        transferEntries.innerHTML = '';
+      }
+    }
+
+    function updateTransfers(input) {
+      const tripDiv = input.closest('.entry');
+      const transferEntries = tripDiv.querySelector('.transfer-entries');
+      const numTransfers = parseInt(input.value) || 0;
+      transferEntries.innerHTML = '';
+      for (let i = 1; i <= numTransfers; i++) {
+        const transferId = `TF${++transferIdCounter}`;
+        const transferDiv = document.createElement('div');
+        transferDiv.className = 'entry conditional-fields';
+        transferDiv.innerHTML = `
+          <label>Transfer ${i} ID: <input type="text" name="transfer_id[]" readonly value="${transferId}"></label>
+          <label>Stop Name: <input type="text" name="stop_name[]"></label>
+          <label>Mode:
+            <select name="transfer_mode[]" required>
+              <option value="" selected>Please Select</option>
+              <option>Bus</option>
+              <option>Train</option>
+              <option>Metro</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label>Cost (Rs.): <input type="number" name="transfer_cost[]" min="0"></label>
+          <label>Time: <input type="time" name="transfer_time[]"></label>
+          <label>Waiting Time (min): <input type="number" name="transfer_waiting_time[]" min="0"></label>
+        `;
+        transferEntries.appendChild(transferDiv);
+      }
+    }
+
+    function submitToGoogleSheets(data) {
+      console.log('Submitting data:', JSON.stringify(data));
+      const hiddenData = document.getElementById('hidden-data');
+      try {
+        hiddenData.value = JSON.stringify(data);
+      } catch (e) {
+        console.error('JSON stringify error:', e);
+        alert('Error preparing data: ' + e.message);
+        return;
+      }
+      const hiddenForm = document.getElementById('hidden-form');
+      
+      const timeout = setTimeout(() => {
+        console.error('Submission timed out');
+        alert('Submission failed: Server did not respond in time.');
+        saveToLocalStorage(data);
+        lastSubmissionStatus = false;
+      }, 15000);
+
+      window.handleIframeLoad = () => {
+        clearTimeout(timeout);
+        console.log('Iframe loaded');
+        try {
+          const iframe = document.querySelector('iframe[name="hidden-iframe"]');
+          const response = iframe.contentDocument?.body?.innerText || '';
+          console.log('Response:', response);
+          if (response === 'Success') {
+            alert('Data submitted successfully!');
+            lastSubmissionStatus = true;
+            document.getElementById('survey-form').reset();
+            document.getElementById('household_id').value = `H${Date.now()}`;
+            document.getElementById('submission_date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('vehicles').innerHTML = '';
+            document.getElementById('members').innerHTML = '';
+            memberIdCounter = 0;
+            tripIdCounter = 0;
+            transferIdCounter = 0;
+          } else {
+            console.error('Submission failed:', response);
+            alert('Submission failed: ' + response);
+            saveToLocalStorage(data);
+            lastSubmissionStatus = false;
+          }
+        } catch (e) {
+          console.error('Error reading iframe:', e);
+          alert('Submission error: ' + e.message);
+          saveToLocalStorage(data);
+          lastSubmissionStatus = false;
+        }
+      };
+
+      hiddenForm.submit();
+    }
+
+    function saveToLocalStorage(data) {
+      try {
+        const surveyData = JSON.parse(localStorage.getItem('surveyData') || '[]');
+        surveyData.push(data);
+        localStorage.setItem('surveyData', JSON.stringify(surveyData));
+        document.getElementById('download-btn').disabled = false;
+      } catch (e) {
+        console.error('LocalStorage error:', e);
+        alert('Error saving data locally: ' + e.message);
+      }
+    }
+
+    function retryFailedSubmissions() {
+      const surveyData = JSON.parse(localStorage.getItem('surveyData') || '[]');
+      if (!surveyData.length) {
+        alert('No failed submissions to retry.');
+        return;
+      }
+      surveyData.forEach(data => submitToGoogleSheets(data));
+      localStorage.setItem('surveyData', '[]');
+      document.getElementById('download-btn').disabled = true;
+    }
+
+    function downloadExcel() {
+      const surveyData = JSON.parse(localStorage.getItem('surveyData') || '[]');
+      if (!surveyData.length) {
+        alert('No data to download.');
+        return;
+      }
+      const ws = XLSX.utils.json_to_sheet(surveyData.map(d => ({
+        household_id: d.household?.household_id || '',
+        surveyor_name: d.household?.surveyor_name || '',
+        submission_date: d.household?.submission_date || '',
+        ward_no: d.household?.ward_no || '',
+        taz_no: d.household?.taz_no || '',
+        head_name: d.household?.head_name || '',
+        address: d.household?.address || '',
+        latitude: d.household?.latitude || '',
+        longitude: d.household?.longitude || '',
+        mobile: d.household?.mobile || '',
+        household_type: d.household?.household_type || '',
+        house_ownership: d.household?.house_ownership || '',
+        num_rooms: d.household?.num_rooms || '',
+        num_earners: d.household?.num_earners || '',
+        income: d.household?.income || '',
+        exp_transport: d.household?.exp_transport || '',
+        exp_housing: d.household?.exp_housing || '',
+        exp_education: d.household?.exp_education || '',
+        exp_food: d.household?.exp_food || '',
+        exp_health: d.household?.exp_health || '',
+        exp_others: d.household?.exp_others || '',
+        nearest_pt_station: d.household?.nearest_pt_station || '',
+        pt_distance: d.household?.pt_distance || '',
+        walk_time: d.household?.walk_time || '',
+        waiting_time: d.household?.waiting_time || '',
+        weekly_usage: d.household?.weekly_usage || '',
+        pt_feedback: d.household?.pt_feedback || '',
+        pt_suggestions: d.household?.pt_suggestions || ''
+      })));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'SurveyData');
+      XLSX.writeFile(wb, 'survey_data.xlsx');
+    }
+
+    document.getElementById('survey-form').addEventListener('submit', e => {
+      e.preventDefault();
+      console.log('Form submitted');
+      const formData = new FormData(e.target);
+      const data = {
+        household: {
+          household_id: formData.get('household_id') || '',
+          surveyor_name: formData.get('surveyor_name') || '',
+          submission_date: formData.get('submission_date') || '',
+          ward_no: formData.get('ward_no') || '',
+          taz_no: formData.get('taz_no') || '',
+          head_name: formData.get('head_name') || '',
+          address: formData.get('address') || '',
+          latitude: formData.get('latitude') || '',
+          longitude: formData.get('longitude') || '',
+          mobile: formData.get('mobile') || '',
+          household_type: formData.get('household_type') || '',
+          house_ownership: formData.get('house_ownership') || '',
+          num_rooms: formData.get('num_rooms') || '',
+          num_earners: formData.get('num_earners') || '',
+          income: formData.get('income') || '',
+          exp_transport: formData.get('exp_transport') || '',
+          exp_housing: formData.get('exp_housing') || '',
+          exp_education: formData.get('exp_education') || '',
+          exp_food: formData.get('exp_food') || '',
+          exp_health: formData.get('exp_health') || '',
+          exp_others: formData.get('exp_others') || '',
+          nearest_pt_station: formData.get('nearest_pt_station') || '',
+          pt_distance: formData.get('pt_distance') || '',
+          walk_time: formData.get('walk_time') || '',
+          waiting_time: formData.get('waiting_time') || '',
+          weekly_usage: formData.get('weekly_usage') || '',
+          pt_feedback: formData.get('pt_feedback') || '',
+          pt_suggestions: formData.get('pt_suggestions') || ''
+        },
+        vehicles: [],
+        members: [],
+        trips: [],
+        transfers: []
+      };
+
+      // Collect vehicles
+      const vehicleNumbers = formData.getAll('vehicle_number[]');
+      const vehTypes = formData.getAll('veh_type[]');
+      const ownershipTypes = formData.getAll('ownership_type[]');
+      const fuelTypes = formData.getAll('fuel_type[]');
+      const parkingTypes = formData.getAll('parking_type[]');
+      for (let i = 0; i < vehTypes.length; i++) {
+        if (vehTypes[i]) {
+          data.vehicles.push({
+            household_id: data.household.household_id,
+            vehicle_number: vehicleNumbers[i] || '',
+            veh_type: vehTypes[i] || '',
+            ownership_type: ownershipTypes[i] || '',
+            fuel_type: fuelTypes[i] || '',
+            parking_type: parkingTypes[i] || ''
+          });
+        }
+      }
+
+      // Collect members
+      const memberEntries = document.getElementById('members').querySelectorAll('.entry');
+      memberEntries.forEach((entry, index) => {
+        const member = {
+          household_id: data.household.household_id,
+          member_id: formData.getAll('member_id[]')[index] || '',
+          relation: formData.getAll('relation[]')[index] || '',
+          age: formData.getAll('age[]')[index] || '',
+          gender: formData.getAll('gender[]')[index] || '',
+          marital_status: formData.getAll('marital_status[]')[index] || '',
+          education: formData.getAll('education[]')[index] || '',
+          occupation: formData.getAll('occupation[]')[index] || '',
+          employment_place: formData.getAll('employment_place[]')[index] || '',
+          income_personal: formData.getAll('income_personal[]')[index] || '',
+          license: formData.getAll('license[]')[index] || '',
+          travel_pass: formData.getAll('travel_pass[]')[index] || '',
+          pass_cost: formData.getAll('pass_cost[]')[index] || '',
+          travel_expense: formData.getAll('travel_expense[]')[index] || ''
+        };
+        if (member.member_id) data.members.push(member);
+
+        // Collect trips
+        const tripEntries = entry.querySelectorAll('.trip-entries .entry');
+        tripEntries.forEach(tripEntry => {
+          const tripIndex = Array.from(document.querySelectorAll('input[name="trip_id[]"]')).indexOf(tripEntry.querySelector('input[name="trip_id[]"]'));
+          const trip = {
+            household_id: data.household.household_id,
+            member_id: member.member_id,
+            trip_id: formData.getAll('trip_id[]')[tripIndex] || '',
+            mode_of_transport: formData.getAll('mode_of_transport[]')[tripIndex] || '',
+            origin_name: formData.getAll('origin_name[]')[tripIndex] || '',
+            destination_name: formData.getAll('destination_name[]')[tripIndex] || '',
+            start_time: formData.getAll('start_time[]')[tripIndex] || '',
+            end_time: formData.getAll('end_time[]')[tripIndex] || '',
+            travel_cost: formData.getAll('travel_cost[]')[tripIndex] || '',
+            travel_time: formData.getAll('travel_time[]')[tripIndex] || '',
+            trip_purpose: formData.getAll('trip_purpose[]')[tripIndex] || '',
+            num_transfers: formData.getAll('num_transfers[]')[tripIndex] || ''
+          };
+          if (trip.trip_id) data.trips.push(trip);
+
+          // Collect transfers
+          const transferEntries = tripEntry.querySelectorAll('.transfer-entries .entry');
+          transferEntries.forEach(transferEntry => {
+            const transferIndex = Array.from(document.querySelectorAll('input[name="transfer_id[]"]')).indexOf(transferEntry.querySelector('input[name="transfer_id[]"]'));
+            const transfer = {
+              household_id: data.household.household_id,
+              member_id: member.member_id,
+              trip_id: trip.trip_id,
+              transfer_number: formData.getAll('transfer_id[]')[transferIndex] || '',
+              stop_name: formData.getAll('stop_name[]')[transferIndex] || '',
+              mode: formData.getAll('transfer_mode[]')[transferIndex] || '',
+              cost: formData.getAll('transfer_cost[]')[transferIndex] || '',
+              time: formData.getAll('transfer_time[]')[transferIndex] || '',
+              waiting_time: formData.getAll('transfer_waiting_time[]')[transferIndex] || ''
+            };
+            if (transfer.transfer_number) data.transfers.push(transfer);
+          });
+        });
+      });
+
+      submitToGoogleSheets(data);
+    });
+  </script>
+</body>
+</html>
